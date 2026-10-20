@@ -12,15 +12,19 @@ Source code: https://github.com/Ibrahim-Adel15/CalculatorMavenApp.git
 
 ## Project Structure
 
+```text
 Lab3/
-├── part1/ # Build inside Docker
-│ ├── Dockerfile
-│ └── ...app source code
-├── part2/ # Build locally
-│ ├── Dockerfile
-│ └── ...app source code
+├── part1/                # Build inside Docker
+│   ├── Dockerfile
+│   ├── pom.xml
+│   └── src/
+├── part2/                # Build locally
+│   ├── Dockerfile
+│   ├── pom.xml
+│   ├── src/
+│   └── target/           # created by mvn package (not pushed to Git)
 └── README.md
-
+```
 
 ## Part 1: Build Inside Docker
 
