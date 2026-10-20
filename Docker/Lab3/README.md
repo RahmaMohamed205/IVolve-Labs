@@ -11,17 +11,16 @@ Source code: https://github.com/Ibrahim-Adel15/CalculatorMavenApp.git
 - WSL2, Docker, Java 17, Maven, Git
 
 ## Project Structure
-```
+
 Lab3/
-├── part1/          # Build inside Docker
-│   ├── Dockerfile
-│   └── ...app source code
-├── part2/          # Build locally
-│   ├── Dockerfile
-│   └── ...app source code
-├── screenshots/
+├── part1/ # Build inside Docker
+│ ├── Dockerfile
+│ └── ...app source code
+├── part2/ # Build locally
+│ ├── Dockerfile
+│ └── ...app source code
 └── README.md
-```
+
 
 ## Part 1: Build Inside Docker
 
@@ -94,10 +93,7 @@ docker rmi app2
 app2 is about **67% smaller** than app1.
 
 ## Verification
-Both containers started and ran the application successfully.
-
-![app1 size](screenshots/app1-size.png)
-![app2 size](screenshots/app2-size.png)
+Both containers were started with `docker run` and the application output was checked with `docker logs`. After verification, the containers and images were deleted.
 
 ## Bonus: Comparison of the Two Approaches
 
