@@ -1,0 +1,110 @@
+# Lab 3: Creating a Docker Image for a Java Application
+
+## Objective
+Package a Java Maven application (CalculatorMavenApp) as a Docker image in two ways and compare the results:
+1. Build the application **inside** Docker.
+2. Build the application **locally**, then copy only the JAR into a runtime image.
+
+Source code: https://github.com/Ibrahim-Adel15/CalculatorMavenApp.git
+
+## Prerequisites
+- WSL2, Docker, Java 17, Maven, Git
+
+## Project Structure
+```
+Lab3/
+├── part1/          # Build inside Docker
+│   ├── Dockerfile
+│   └── ...app source code
+├── part2/          # Build locally
+│   ├── Dockerfile
+│   └── ...app source code
+└── README.md
+```
+
+## Part 1: Build Inside Docker
+
+**Dockerfile** (`part1/Dockerfile`)
+```dockerfile
+FROM maven:3.9-eclipse-temurin-17
+
+RUN useradd -m appuser
+WORKDIR /app
+RUN chown appuser:appuser /app
+USER appuser
+
+COPY --chown=appuser:appuser . .
+RUN mvn package
+
+EXPOSE 8080
+CMD ["java", "-jar", "target/calculator.jar"]
+```
+
+**Commands**
+```bash
+cd part1
+docker build -t app1 .
+docker images app1
+docker run -d --name container1 -p 8080:8080 app1
+docker logs container1
+docker rm -f container1
+docker rmi app1
+```
+
+## Part 2: Build Locally
+
+**Build the JAR with Maven**
+```bash
+cd part2
+mvn package
+```
+
+**Dockerfile** (`part2/Dockerfile`)
+```dockerfile
+FROM eclipse-temurin:17-jre-alpine
+
+RUN adduser -D appuser
+WORKDIR /app
+USER appuser
+
+COPY --chown=appuser target/calculator.jar app.jar
+
+EXPOSE 8080
+CMD ["java", "-jar", "app.jar"]
+```
+
+**Commands**
+```bash
+docker build -t app2 .
+docker images app2
+docker run -d --name container2 -p 8080:8080 app2
+docker logs container2
+docker rm -f container2
+docker rmi app2
+```
+
+## Results
+
+| Image | Approach | Base image | Disk usage | Content size |
+|-------|----------|-----------|-----------|--------------|
+| app1 | Build inside Docker | maven:3.9-eclipse-temurin-17 | 814 MB | 251 MB |
+| app2 | Build locally | eclipse-temurin:17-jre-alpine | 265 MB | 70.5 MB |
+
+app2 is about **67% smaller** than app1.
+
+## Verification
+Both containers were started with `docker run` and the application output was checked with `docker logs`. After verification, the containers and images were deleted.
+
+## Bonus: Comparison of the Two Approaches
+
+| | Build inside Docker (app1) | Build locally (app2) |
+|---|---|---|
+| Base image | Maven + full JDK 17 | JRE 17 on Alpine |
+| Image contents | Maven, JDK, source code, dependency cache, JAR | JRE and JAR only |
+| Size | Larger (814 MB) | Smaller (265 MB) |
+| Security | Larger attack surface (build tools included) | Smaller attack surface |
+| Reproducibility | Same result on any machine with Docker | Depends on the local Maven/Java setup |
+
+**Explanation:** app1 is larger because it keeps everything used to build the app (Maven, the JDK, the source code and downloaded dependencies), none of which is needed to run it. app2 contains only the Java runtime and the finished JAR on a small Alpine base.
+
+**Conclusion:** Building inside Docker gives consistent builds, while building locally gives a smaller and safer runtime image. A multi-stage build combines both benefits by building in one stage and copying only the JAR into a small runtime image.
