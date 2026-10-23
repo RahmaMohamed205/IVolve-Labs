@@ -1,0 +1,42 @@
+services:
+  app:
+    build: .
+    image: ${DOCKERHUB_USER}/ivolve-app:v1
+    container_name: ivolve-app
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: rootpass
+      DB_NAME: ivolve
+    volumes:
+      - app_logs:/app/logs/
+    networks:
+      - ivolve-net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    container_name: ivolve-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: ivolve
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - ivolve-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+networks:
+  ivolve-net:
+
+volumes:
+  app_logs:
+  db_data:
