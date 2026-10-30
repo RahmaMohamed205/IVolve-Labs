@@ -77,7 +77,7 @@ kubectl get --raw='/readyz?verbose' | tail -3
 ```
 Both nodes are `Ready`, and the control plane and Calico pods are `Running`.
 
-![nodes](Screenshots/3-nodes.jpng)
+![nodes](Screenshots/3-nodes.jpeg)
 ![pods](Screenshots/4-pods.png)
 
 ## Notes
