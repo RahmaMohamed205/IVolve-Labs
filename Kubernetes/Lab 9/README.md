@@ -45,7 +45,7 @@ kubeadm init \
   --kubernetes-version=$(kubeadm version -o short) \
   --ignore-preflight-errors=NumCPU
 ```
-![kubeadm init](Screenshots/2-kubeadm init.png)
+![kubeadm init](Screenshots/2-kubeadm-init.png)
 
 **4. Configure kubectl**
 ```bash
@@ -77,7 +77,7 @@ kubectl get --raw='/readyz?verbose' | tail -3
 ```
 Both nodes are `Ready`, and the control plane and Calico pods are `Running`.
 
-![nodes](Screenshots/3-nodes.png)
+![nodes](Screenshots/3-nodes.jpng)
 ![pods](Screenshots/4-pods.png)
 
 ## Notes
