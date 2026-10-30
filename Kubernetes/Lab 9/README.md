@@ -45,7 +45,7 @@ kubeadm init \
   --kubernetes-version=$(kubeadm version -o short) \
   --ignore-preflight-errors=NumCPU
 ```
-![kubeadm init](Screenshots/2-kubeadm-init.png)
+![kubeadm init](Screenshots/2-kubeadm init.png)
 
 **4. Configure kubectl**
 ```bash
