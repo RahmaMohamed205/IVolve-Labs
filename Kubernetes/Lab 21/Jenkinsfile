@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-    DOCKER_HUB_USER = 'rahmamohamed205' 
-    IMAGE_NAME      = "${DOCKER_HUB_USER}/demoapp"
-    IMAGE_TAG       = "${BUILD_NUMBER}"
-    K8S_DEPLOYMENT  = 'deployment.yaml'
-}
+        DOCKER_HUB_USER = 'rahmamohamed205'
+        IMAGE_NAME      = "${DOCKER_HUB_USER}/demoapp"
+        IMAGE_TAG       = "${BUILD_NUMBER}"
+        K8S_DEPLOYMENT  = 'Kubernetes/Lab 21/deployment.yaml'
+    }
 
     stages {
         stage('1. Clone Source Code') {
@@ -15,9 +15,10 @@ pipeline {
             }
         }
 
-        stage('2. Build App') {
+        stage('2. Build App (Ephemeral Maven)') {
             steps {
-                sh 'echo "Building application binaries..."'
+                
+                sh 'docker run --rm -v "$PWD":/app -w /app maven:3.9-eclipse-temurin-17 mvn clean package -DskipTests'
             }
         }
 
@@ -27,9 +28,10 @@ pipeline {
             }
         }
 
-        stage('4. Scan Docker Image') {
+        stage('4. Scan Docker Image (Ephemeral Trivy)') {
             steps {
-                sh "trivy image --severity HIGH,CRITICAL ${IMAGE_NAME}:${IMAGE_TAG} || true"
+                
+                sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL ${IMAGE_NAME}:${IMAGE_TAG} || true"
             }
         }
 
@@ -48,7 +50,7 @@ pipeline {
             }
         }
 
-        stage('7. Update Deployment & Deploy to K8s') {
+        stage('7. Deploy to K8s Cluster') {
             steps {
                 sh "sed -i 's|image: .*|image: ${IMAGE_NAME}:${IMAGE_TAG}|g' ${K8S_DEPLOYMENT}"
                 sh "kubectl apply -f ${K8S_DEPLOYMENT} -n ivolve"
@@ -58,14 +60,11 @@ pipeline {
 
     post {
         always {
-            echo "Pipeline execution finished."
             cleanWs()
+            sh 'docker system prune -f --volumes || true'
         }
         success {
             echo "Application successfully deployed to Kubernetes!"
-        }
-        failure {
-            echo "Pipeline execution failed!"
         }
     }
 }
