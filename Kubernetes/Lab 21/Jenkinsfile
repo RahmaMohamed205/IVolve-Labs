@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_USER = 'your-dockerhub-username' // Replace with your DockerHub username
-        IMAGE_NAME      = "${DOCKER_HUB_USER}/demoapp"
-        IMAGE_TAG       = "${BUILD_NUMBER}"
-        K8S_DEPLOYMENT  = 'Lab21/deployment.yaml'
-    }
+    DOCKER_HUB_USER = 'rahmamohamed205' 
+    IMAGE_NAME      = "${DOCKER_HUB_USER}/demoapp"
+    IMAGE_TAG       = "${BUILD_NUMBER}"
+    K8S_DEPLOYMENT  = 'deployment.yaml'
+}
 
     stages {
         stage('1. Clone Source Code') {
