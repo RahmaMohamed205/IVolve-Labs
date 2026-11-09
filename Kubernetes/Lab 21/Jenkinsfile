@@ -15,10 +15,15 @@ pipeline {
             }
         }
 
-        stage('2. Build App (Ephemeral Maven)') {
+        stage('2. Build App (Maven container)') {
+            agent {
+                docker {
+                    image 'maven:3.9-eclipse-temurin-17'
+                    reuseNode true
+                }
+            }
             steps {
-                
-                sh 'docker run --rm -v "$PWD":/app -w /app maven:3.9-eclipse-temurin-17 mvn clean package -DskipTests'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
@@ -28,10 +33,16 @@ pipeline {
             }
         }
 
-        stage('4. Scan Docker Image (Ephemeral Trivy)') {
+        stage('4. Scan Docker Image (Trivy container)') {
+            agent {
+                docker {
+                    image 'aquasec/trivy:latest'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                    reuseNode true
+                }
+            }
             steps {
-                
-                sh "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --severity HIGH,CRITICAL ${IMAGE_NAME}:${IMAGE_TAG} || true"
+                sh "trivy image --severity HIGH,CRITICAL ${IMAGE_NAME}:${IMAGE_TAG} || true"
             }
         }
 
@@ -61,10 +72,9 @@ pipeline {
     post {
         always {
             cleanWs()
-            sh 'docker system prune -f --volumes || true'
         }
         success {
-            echo "Application successfully deployed to Kubernetes!"
+            echo "Application successfully built and deployed to Kubernetes!"
         }
     }
 }
