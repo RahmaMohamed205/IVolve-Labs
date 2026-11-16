@@ -1,0 +1,49 @@
+@Library('ivolve-shared-lib') _
+
+pipeline {
+    agent { label 'jenkins-slave' }
+
+    environment {
+        DOCKER_HUB_USER = 'rahmaelballat'
+        IMAGE_NAME      = "${DOCKER_HUB_USER}/demoapp"
+        IMAGE_TAG       = "${BUILD_NUMBER}"
+        K8S_DEPLOYMENT  = 'Kubernetes/Lab 22/deployment.yaml'
+    }
+
+    stages {
+        stage('1. Clone Source Code') {
+            steps {
+                dir('app') {
+                    git branch: 'main', url: 'https://github.com/Ibrahim-Adel15/DemoApp.git'
+                }
+            }
+        }
+
+        stage('2. Build App') {
+            steps {
+                BuildApp()
+            }
+        }
+
+        stage('3. Build, Scan & Push Image') {
+            steps {
+                BuildImage(IMAGE_NAME, IMAGE_TAG, 'dockerhub-credentials')
+            }
+        }
+
+        stage('4. Deploy to Kubernetes') {
+            steps {
+                DeployOnK8s(K8S_DEPLOYMENT, IMAGE_NAME, IMAGE_TAG, 'ivolve')
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo "Lab 22 Pipeline completed successfully on jenkins-slave!"
+        }
+    }
+}
