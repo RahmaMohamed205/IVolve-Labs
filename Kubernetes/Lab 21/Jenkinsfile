@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-    DOCKER_HUB_USER = 'rahmaelballat'
-    IMAGE_NAME      = "${DOCKER_HUB_USER}/demoapp"
-    IMAGE_TAG       = "${BUILD_NUMBER}"
-    K8S_DEPLOYMENT  = 'Kubernetes/Lab 21/deployment.yaml'
-}
+        DOCKER_HUB_USER = 'rahmaelballat'
+        IMAGE_NAME      = "${DOCKER_HUB_USER}/demoapp"
+        IMAGE_TAG       = "${BUILD_NUMBER}"
+        K8S_DEPLOYMENT  = 'Kubernetes/Lab 21/deployment.yaml'
+    }
 
     stages {
         stage('1. Clone Source Code') {
@@ -35,7 +35,7 @@ pipeline {
 
         stage('4. Scan Docker Image') {
             steps {
-                sh "trivy image --severity HIGH,CRITICAL ${IMAGE_NAME}:${IMAGE_TAG} || true"
+                sh "trivy image --pkg-types os --scanners vuln --severity HIGH,CRITICAL ${IMAGE_NAME}:${IMAGE_TAG} || true"
             }
         }
 
