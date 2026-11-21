@@ -1,0 +1,47 @@
+---
+- name: Install Jenkins prerequisites
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - fontconfig
+      - "{{ jenkins_java_package }}"
+    state: present
+    update_cache: true
+
+- name: Ensure the keyrings directory exists
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Add the Jenkins signing key
+  ansible.builtin.get_url:
+    url: "{{ jenkins_key_url }}"
+    dest: /etc/apt/keyrings/jenkins-keyring.asc
+    mode: "0644"
+    force: true
+
+- name: Add the Jenkins repository
+  ansible.builtin.apt_repository:
+    repo: "{{ jenkins_repo }}"
+    state: present
+    filename: jenkins
+
+- name: Install Jenkins
+  ansible.builtin.apt:
+    name: jenkins
+    state: present
+    update_cache: true
+
+- name: Start and enable Jenkins
+  ansible.builtin.service:
+    name: jenkins
+    state: started
+    enabled: true
+
+- name: Wait for Jenkins on port 8080
+  ansible.builtin.wait_for:
+    port: 8080
+    timeout: 180

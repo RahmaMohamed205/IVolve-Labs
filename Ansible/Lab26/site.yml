@@ -1,0 +1,7 @@
+---
+- name: Apply roles to the managed node
+  hosts: managed
+  roles:
+    - docker
+    - kubectl
+    - jenkins
