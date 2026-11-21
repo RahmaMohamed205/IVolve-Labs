@@ -48,7 +48,7 @@ spec:
               echo "database ready"
       containers:
         - name: app
-          image: rahmaelballat/ivolve-app:v1
+          image: rahmaelballat/ivolve-app:build-1
           ports:
             - containerPort: 3000
           envFrom:
