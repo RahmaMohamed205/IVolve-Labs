@@ -1,0 +1,22 @@
+---
+- name: Configure Nginx Web Server via Dynamic Inventory
+  hosts: server_ivolve
+  become: true
+  tasks:
+    - name: Update apt cache and install Nginx
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Deploy custom web page
+      copy:
+        content: "<h1>Lab 28: Configured via Ansible Dynamic Inventory</h1>\n"
+        dest: /var/www/html/index.html
+        mode: '0644'
+
+    - name: Start and enable Nginx service
+      service:
+        name: nginx
+        state: started
+        enabled: yes

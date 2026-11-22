@@ -1,0 +1,11 @@
+plugin: amazon.aws.aws_ec2
+regions:
+  - us-east-1
+filters:
+  tag:server: ivolve
+keyed_groups:
+  - key: tags.server
+    prefix: server
+compose:
+  ansible_host: "'localhost'"
+  ansible_port: "2200"
